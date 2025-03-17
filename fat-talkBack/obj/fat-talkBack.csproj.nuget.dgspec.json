@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/ibramdarwish/Desktop/ReactNative/fat-talkBack/fat-talkBack.csproj": {}
+    "/Users/ibramdarwish/Desktop/ReactNative/closed_locket/fat-talkBack/fat-talkBack.csproj": {}
   },
   "projects": {
-    "/Users/ibramdarwish/Desktop/ReactNative/fat-talkBack/fat-talkBack.csproj": {
+    "/Users/ibramdarwish/Desktop/ReactNative/closed_locket/fat-talkBack/fat-talkBack.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/ibramdarwish/Desktop/ReactNative/fat-talkBack/fat-talkBack.csproj",
+        "projectUniqueName": "/Users/ibramdarwish/Desktop/ReactNative/closed_locket/fat-talkBack/fat-talkBack.csproj",
         "projectName": "fat-talkBack",
-        "projectPath": "/Users/ibramdarwish/Desktop/ReactNative/fat-talkBack/fat-talkBack.csproj",
+        "projectPath": "/Users/ibramdarwish/Desktop/ReactNative/closed_locket/fat-talkBack/fat-talkBack.csproj",
         "packagesPath": "/Users/ibramdarwish/.nuget/packages/",
-        "outputPath": "/Users/ibramdarwish/Desktop/ReactNative/fat-talkBack/obj/",
+        "outputPath": "/Users/ibramdarwish/Desktop/ReactNative/closed_locket/fat-talkBack/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/ibramdarwish/.nuget/NuGet/NuGet.Config"
@@ -46,6 +46,16 @@
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[8.0.11, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.3, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite": {
+              "target": "Package",
+              "version": "[9.0.3, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
