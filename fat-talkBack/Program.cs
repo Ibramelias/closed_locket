@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(); // Register SQLite Database
@@ -28,5 +30,33 @@ app.MapGet("/users", (AppDbContext db) =>
 {
     return db.Users.ToList();
 });
+
+// API to sigup new users 
+app.MapPost("/signup", async (AppDbContext db, SignUpUser newUser) =>
+{
+    // Check if the email already exists
+    var existingUser = await db.Users.FirstOrDefaultAsync(u => u.Email == newUser.Email);
+    if (existingUser != null)
+    {
+        return Results.BadRequest("Email already in use.");
+    }
+
+    // Validate password
+    if (newUser.Password != newUser.ConfirmPass)
+    {
+        return Results.BadRequest("Passwords do not match.");
+    }
+
+    // Add user to database
+    db.Users.Add(newUser);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/users/{newUser.Id}", newUser);
+});
+
+
+
+
+
 
 app.Run();
