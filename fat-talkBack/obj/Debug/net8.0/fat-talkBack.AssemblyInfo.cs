@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("fat-talkBack")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b3bc224672076d53a085fe3a52a4622225e1d7a8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6a70befc9f4883e1a9ef83bbacb0cc0f4da07166")]
 [assembly: System.Reflection.AssemblyProductAttribute("fat-talkBack")]
 [assembly: System.Reflection.AssemblyTitleAttribute("fat-talkBack")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

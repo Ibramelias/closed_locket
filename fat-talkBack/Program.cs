@@ -34,9 +34,18 @@ using (var scope = app.Services.CreateScope())
 app.UseHttpsRedirection();
 
 // ✅ API to fetch all users
+// app.MapGet("/users", async (AppDbContext db) =>
+// {
+//     var users = await db.Users.ToListAsync();
+//     return Results.Ok(users);
+// });
+
 app.MapGet("/users", async (AppDbContext db) =>
 {
-    var users = await db.Users.ToListAsync();
+    var users = await db.Users
+        .Include(u => u.Items)  // Load related Items
+        .ToListAsync();
+    
     return Results.Ok(users);
 });
 
