@@ -80,7 +80,12 @@ app.MapPost("/users/{userId}/items", async (HttpRequest request, AppDbContext db
 
     var form = await request.ReadFormAsync();
     var description = form["Description"];
-    var price = decimal.Parse(form["Price"]);
+    var priceString = form["Price"];
+    if (!decimal.TryParse(priceString, out decimal price))
+    {
+        return Results.BadRequest("Invalid or missing price");
+    }
+
     var location = form["Location"];
     var productType = form["ProductType"];
     var imageFile = form.Files["ImageFile"];
