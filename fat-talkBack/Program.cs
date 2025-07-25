@@ -6,12 +6,12 @@ using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ✅ Configure DbContext using Dependency Injection
+//Configure DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite($"Data Source={Path.Combine(Directory.GetCurrentDirectory(), "Database", "app_database.sqlite")}")
 );
 
-// ✅ Fix Circular Reference Issue
+//Fix Circular Reference
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -24,7 +24,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// ✅ Ensure database is created
+//Ensure database is created
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -33,30 +33,29 @@ using (var scope = app.Services.CreateScope())
 
 app.UseHttpsRedirection();
 
-// ✅ API to fetch all users
-// app.MapGet("/users", async (AppDbContext db) =>
-// {
-//     var users = await db.Users.ToListAsync();
-//     return Results.Ok(users);
-// });
+//Enable serving static files for uploaded images
+app.UseStaticFiles();
 
+// ------------------- API Endpoints -------------------
+
+//Fetch all users (with items)
 app.MapGet("/users", async (AppDbContext db) =>
 {
     var users = await db.Users
-        .Include(u => u.Items)  // Load related Items
+        .Include(u => u.Items)
         .ToListAsync();
-    
+
     return Results.Ok(users);
 });
 
-// ✅ API to fetch all items from all users
+//Fetch all items
 app.MapGet("/items", async (AppDbContext db) =>
 {
     var items = await db.Items.ToListAsync();
     return Results.Ok(items);
 });
 
-// ✅ API to sign up new users
+//User SignUp
 app.MapPost("/signup", async (AppDbContext db, SignUpUser newUser) =>
 {
     var existingUser = await db.Users.FirstOrDefaultAsync(u => u.Email == newUser.Email);
@@ -72,18 +71,52 @@ app.MapPost("/signup", async (AppDbContext db, SignUpUser newUser) =>
     return Results.Created($"/users/{newUser.Id}", newUser);
 });
 
-// ✅ API to store user items
-app.MapPost("/users/{userId}/items", async (AppDbContext db, int userId, Item newItem) =>
+//Upload Item with Image (multipart/form-data)
+app.MapPost("/users/{userId}/items", async (HttpRequest request, AppDbContext db, int userId) =>
 {
     var user = await db.Users.FindAsync(userId);
     if (user == null)
         return Results.NotFound("User not found.");
 
-    newItem.UserId = userId;
+    var form = await request.ReadFormAsync();
+    var description = form["Description"];
+    var price = decimal.Parse(form["Price"]);
+    var location = form["Location"];
+    var productType = form["ProductType"];
+    var imageFile = form.Files["ImageFile"];
+
+    string imagePath = null;
+
+    if (imageFile != null && imageFile.Length > 0)
+    {
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+        if (!Directory.Exists(uploadsFolder))
+            Directory.CreateDirectory(uploadsFolder);
+
+        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+        var filePath = Path.Combine(uploadsFolder, fileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await imageFile.CopyToAsync(stream);
+        }
+
+        imagePath = $"/uploads/{fileName}";
+    }
+
+    var newItem = new Item
+    {
+        Description = description,
+        Price = price,
+        Location = location,
+        ProductType = productType,
+        Image = imagePath,
+        UserId = userId
+    };
+
     db.Items.Add(newItem);
     await db.SaveChangesAsync();
 
-    // Return only necessary fields to avoid circular reference
     var response = new
     {
         newItem.Id,
@@ -98,8 +131,7 @@ app.MapPost("/users/{userId}/items", async (AppDbContext db, int userId, Item ne
     return Results.Created($"/users/{userId}/items/{newItem.Id}", response);
 });
 
-
-// ✅ API to get all items from a specific user (Fixes Circular Reference)
+//Get all items of a user
 app.MapGet("/users/{userId}/items", async (AppDbContext db, int userId) =>
 {
     var items = await db.Items
@@ -108,7 +140,8 @@ app.MapGet("/users/{userId}/items", async (AppDbContext db, int userId) =>
         {
             i.Id,
             i.Description,
-            i.Price
+            i.Price,
+            i.Image
         })
         .ToListAsync();
 
@@ -118,7 +151,7 @@ app.MapGet("/users/{userId}/items", async (AppDbContext db, int userId) =>
     return Results.Ok(items);
 });
 
-// ✅ Enable Swagger & Controllers
+// Enable Swagger
 app.UseSwagger();
 app.UseSwaggerUI();
 app.MapControllers();
